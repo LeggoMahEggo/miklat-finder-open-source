@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html dir="ltr">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta property="og:image" content="images/tzeva_adom.jpeg"/>
+    <title>Miklat Finder</title>
+    <link rel="shortcut icon" type="image/x-icon" href="images/tzeva_adom.jpeg">
+    <meta property="og:description" content="Find the nearest Miklat to your location"/>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=|YOUR KEY|&libraries=places&callback=Function.prototype"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="scripts/city.js"></script>
+    <script src="scripts/map-api.js"></script>
+    <script src="scripts/map.js"></script>
+    <script src="locales/en.json"></script>
+    <script src="locales/he.json"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script>
+        const langsAvailable = ["en",  "he"];
+        const userLang = navigator.language || navigator.userLanguage;
+        const nnDefined = userLang !== undefined && userLang !== null; // Protect against errors
+        const lang = (nnDefined && langsAvailable.includes(userLang.split("-")[0])) ? userLang.split(/-|_/)[0] : "en";
+
+        // Set locale+direction if it doesn't yet exist
+        const direction = {en: "ltr", he: "rtl"};
+
+        if (localStorage.getItem("locale") === null) {
+            localStorage.setItem("locale", lang);
+            localStorage.setItem("direction", direction[lang]);
+        }
+
+        // Set title if it does
+        else {
+            switch(localStorage.getItem("locale")) {
+                case "en":
+                    document.title = "Miklat Finder";
+                    break;
+
+                case "he":
+                    document.title = "חיפוש מקלט";
+                    break;
+            }
+        }
+
+        // Try to set direction from local storage
+        if (localStorage.getItem("direction") !== null)
+            document.getElementsByTagName("html")[0].dir = localStorage.getItem("direction");
+    </script>
+</head>
+<body onload="createPlacesAutcomplete();">
+    <div style="display: flex;">
+        <button onclick="setToLTR(); localizePage('en'); document.title = 'Miklat Finder';">English</button>
+        <button onclick="setToRTL(); localizePage('he'); document.title = 'חיפוש מקלט';">עברית</button>
+    </div>
+    <div style="text-align: center;">
+        <h1 style="color: #FF0000;" locale-value="banner-message">|YOUR CITY| LOCATIONS ONLY</h1>
+        <div locale-value="location-enable">(make sure that location is enabled on your device and allow your browser to access location data)</div>
+        <div>
+            <button class="find" onclick="createMap();" locale-value="nearest-miklat-button">Find nearest miklat</button>
+            <div locale-value="by-address">OR by address</div>
+            <div>
+                <input id="addressbar" type="text" placeholder="Input address" locale-value="address-search" style="max-width: 300px; width: 100%;"></input>
+                <span id="address-error" locale-value="address-error" style="position: relative;color: #FF0000;display: none;">Could not find location specified</span>
+            </div>
+        </div>
+        <table border="1" id="miklats" style="display: none;">
+            <tr>
+                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                <th locale-value="miklat-address">Address</th>
+                <th locale-value="miklat-notes">Notes</th>
+                <th locale-value="miklat-time">Est. walk time</th>
+                <th locale-value="miklat-distance">Distance away<span> (m)</span></th>
+                <th locale-value="miklat-size">Size<span> (m<sup>2</sup>)</span></th>
+            </tr>
+        </table>
+        <div id="map" style="width: 100%; height: 400px; display: none; margin-left: auto; margin-right: auto;"></div>
+        <table border="0" id="legend" class="legend" style="display: none;">
+            <tr>
+                <td>
+                    <svg class="svg" viewBox="-20 -1 24 24">
+                        <path stroke-width="1" stroke="black" fill="red" d="M 7 10 l 0 0 v 0 q 0 1.453 -0.727 3.328 t -1.758 3.516 t -2.039 3.07 t -1.711 2.273 l -0.75 0.797 q -0.281 -0.328 -0.75 -0.867 t -1.688 -2.156 t -2.133 -3.141 t -1.664 -3.445 t -0.78 -3.375 a 3.7 3.7 0 0 0 2 -7 h 0 l 2 -3 h 6 l 2 3 a 3.7 3.7 0 0 0 2 7 z"></path>
+                    </svg>
+                </td>
+                <td class="legend-text" locale-value="your-location">Your location</td>
+                <td>
+                    <svg class="svg" viewBox="-20 -1 24 24">
+                        <path stroke-width="1" stroke="black" fill="green" d="M 7 0 V 7 q 0 1.453 -0.727 3.328 t -1.758 3.516 t -2.039 3.07 t -1.711 2.273 l -0.75 0.797 q -0.281 -0.328 -0.75 -0.867 t -1.688 -2.156 t -2.133 -3.141 t -1.664 -3.445 t -0.78 -3.375 v -7 z"></path>
+                    </svg>
+                </td>
+                <td class="legend-text" locale-value="public-miklat">Public miklat</td>
+                <td>
+                    <svg class="svg" viewBox="-20 -1 24 24">
+                        <path stroke-width="1" stroke="black" fill="pink" d="M 7 3 L 10 5 V 8 L 7 10 V 10 q 0 1.453 -0.727 3.328 t -1.758 3.516 t -2.039 3.07 t -1.711 2.273 l -0.75 0.797 q -0.281 -0.328 -0.75 -0.867 t -1.688 -2.156 t -2.133 -3.141 t -1.664 -3.445 t -0.78 -3.375 l -3 -2 L -10 5 L -7 3 H -5 L -3 0 H 3 L 5 3 z"></path>
+                    </svg>
+                </td>
+                <td class="legend-text" locale-value="private-miklat">Private miklat</td>
+                <td>
+                    <svg class="svg" viewBox="-20 -1 24 24">
+                        <path stroke-width="1" stroke="black" fill="yellow" d="M 0 0 q 2.906 0 4.945 2.039 t 2.039 4.945 q 0 1.453 -0.727 3.328 t -1.758 3.516 t -2.039 3.07 t -1.711 2.273 l -0.75 0.797 q -0.281 -0.328 -0.75 -0.867 t -1.688 -2.156 t -2.133 -3.141 t -1.664 -3.445 t -0.75 -3.375 q 0 -2.906 2.039 -4.945 t 4.945 -2.039 z"></path>
+                    </svg>
+                </td>
+                <td class="legend-text" locale-value="click-search-location">Clicked/searched location</td>
+            </tr>
+        </table>
+        <small id="click-map" locale-value="click-map" style="display: none;">Click on the map to see the nearest protected space at that spot!</small>
+    </div>
+    <div style="text-align: center;">
+        <h4 locale-value="cant-reach-start">If you can't reach a mamad/miklat in time and are...</h4>
+        <ul class="wrapper">
+            <li>
+                <button class="collapsible building">
+                    <img src="images/building.png"></img>
+                    <span locale-value="location-indoors">Indoors</span>
+                </button>
+                <ul class="content">
+                    <li locale-value="stairwell-instruction"><b locale-value="stairwell-text">Inner stairwell - </b>without windows, openings or external walls. Sit on the stairs and not in the floor space. In a building with more than three floors – stay in the staircase that has at least two floors above it. In a building with less than three floors – stay in the middle floor.</li>
+                    <li locale-value="room-instruction"><b locale-value="room-text">Inner room - </b>with as few outside walls, windows and openings as possible. Sit in an inner corner under a window line and not In front of the door. Kitchens, bathrooms or toilets cannot be used as an inner room.</li>
+                </ul>
+            </li>
+            <li>
+                <button class="collapsible">
+                    <img src="images/tree.png"></img>
+                    <span locale-value="location-outside">Outside</span>
+                </button>
+                <ul class="content">
+                    <li locale-value="built-up-instruction"><b locale-value="built-up-text">In a built-up area - </b>enter a shelter or a stairwell of a nearby building. Stay away from the entrance area.</li>
+                    <li locale-value="open-area-instruction"><b locale-value="open-area-text">In an open area - </b>lie on the ground and protect your head with your hands. When a rocket hits the ground, the explosion blast wave generates fragments that can injure anyone standing up or sitting down.</li>
+                </ul>
+            </li>
+            <li>
+                <button class="collapsible">
+                    <img src="images/car.png"></img>
+                    <span locale-value="location-vehicle">In a vehicle</span>
+                </button>
+                <ul class="content">
+                    <li locale-value="vehicle-instruction1">Stop the vehicle on the side of the road, get out of the car and enter a shelter or a stairwell in a nearby building.</li>
+                    <li locale-value="vehicle-instruction2">If you cannot reach shelter within the time available to reach shelter – get out and move away from the vehicle to the side of the road or beyond the separation fence, lie on the ground and protect your head with your hands.</li>
+                    <li locale-value="vehicle-instruction3">Only if you are unable to get out of the vehicle, stop at the side of the road and bend below window line.</li>
+                </ul>
+            </li>
+            <li>
+                <button class="collapsible">
+                    <img src="images/bus.png"></img>
+                    <span locale-value="location-public-transportation">On public transportation</span>
+                </button>
+                <ul class="content">
+                    <li locale-value="intercity-transportation-instruction"><b locale-value="intercity-transportation-text">On an intercity bus and student transportation - </b>the driver must stop the vehicle at the side of the road and open the doors, and the passengers must bend below the window line and protect their heads with their hands.</li>
+                    <li locale-value="intracity-transportation-instruction"><b locale-value="intracity-transportation-text">On a city bus - </b>the driver must stop on the side of the road and open the doors for the passengers to get off and enter a nearby building. If it is not possible to reach the building in the time available, bend below the window line and protect your head with your hands.</li>
+                    <li locale-value="train-instruction"><b locale-value="train-text">When traveling by train - </b>the driver must slow down to a speed of 30 km/h for 10 minutes, the passengers must bend below the window line in the carriages and protect their heads with their hands.</li>
+                </ul>
+            </li>
+        </ul>
+        <div>
+            <span locale-value="disclaimer">DISCLAIMER: the app and information listed here is not official and may not be up to date. Miklat info was gathered from volunteers around the community, and the above instructions from Pikud Haoref. Please refer to their site for official instructions and standards at <a locale-value="pikud-haoref-link" href="https://www.oref.org.il/en">https://www.oref.org.il/en</a></span>
+            <br/>
+            <br/>
+            <small locale-value="contact-us">Found a bug? You can let us know at <a locale-value="contact-email" href="mailto: abc@example.com">abc@example.com</a></small>
+        </div>
+    </div>
+</body>
+<script>
+// Enable collapsing functionality
+var collapsibles = document.getElementsByClassName("collapsible");
+
+for (var i = 0; i < collapsibles.length; i++) {
+    collapsibles[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        const content = this.nextElementSibling;
+
+        if (content.style.maxHeight)
+            content.style.maxHeight = null;
+        else
+            content.style.maxHeight = content.scrollHeight + "px";
+    });
+}
+</script>
+<script src="scripts/localization.js">
+</script>
+</html>

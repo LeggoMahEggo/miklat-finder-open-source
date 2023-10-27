@@ -1,0 +1,65 @@
+ var EN_JSON = {
+    "popup-nearest-miklat": "The nearest miklat is XXX meters away (map will open after closing this popup)",
+    "popup-outside-city-location": "You are not in Givat Shmuel!",
+    "popup-outside-city-search": "Search addresses only in Givat Shmuel!",
+    "popup-direction-to-miklat": "Open directions to protected space in Google Maps?",
+    "popup-geolocation-unsupported": "Geolocation is not supported by your browser",
+
+    "geolocation-error-permission": "Permission denied (make sure that Miklat Finder has access to your phone's location)",
+    "geolocation-error-position": "Position unavailable (make sure that location is enabled on your phone)",
+    "geolocation-error-timeout": "Timeout reached (refreshing the page, or closing the tab and opening a new one, may help)",
+
+    "banner-message": "|YOUR CITY| LOCATIONS ONLY",
+    "location-enable": "(make sure that location is enabled on your device and allow your browser to access location data)",
+    "nearest-miklat-button": "Find nearest miklat",
+    "by-address": "OR by address",
+    "address-search": "Input address",
+    "address-error": "Could not find location specified",
+    "miklat-name": "Miklat Name",
+    "miklat-address": "Address",
+    "miklat-notes": "Notes",
+    "miklat-time": "Est. walk time",
+    "miklat-time-sec": "(sec)",
+    "miklat-distance": "Distance away",
+    "miklat-size": "Size",
+    "pan-to-location": "Pan to current location",
+
+    "your-location": "Your location",
+    "public-miklat": "Public miklat",
+    "private-miklat": "Private miklat",
+    "click-search-location": "Clicked/searched location",
+    "click-map": "Click on the map to see the nearest protected space at that spot!",
+
+    "cant-reach-start": "If you can't reach a mamad/miklat in time and are...",
+    "location-indoors": "Indoors",
+    "location-outside": "Outside",
+    "location-vehicle": "In a vehicle",
+    "location-public-transportation": "On public transportation",
+
+    "stairwell-text": "Inner stairwell - ",
+    "stairwell-instruction": "without windows, openings or external walls. Sit on the stairs and not in the floor space. In a building with more than three floors – stay in the staircase that has at least two floors above it. In a building with less than three floors – stay in the middle floor.",
+    "room-text": "Inner room - ",
+    "room-instruction": "with as few outside walls, windows and openings as possible. Sit in an inner corner under a window line and not In front of the door. Kitchens, bathrooms or toilets cannot be used as an inner room.",
+
+    "built-up-text": "In a built-up area - ",
+    "built-up-instruction": "enter a shelter or a stairwell of a nearby building. Stay away from the entrance area.",
+    "open-area-text": "In an open area - ",
+    "open-area-instruction": "lie on the ground and protect your head with your hands. When a rocket hits the ground, the explosion blast wave generates fragments that can injure anyone standing up or sitting down.",
+
+    "vehicle-instruction1": "Stop the vehicle on the side of the road, get out of the car and enter a shelter or a stairwell in a nearby building.",
+    "vehicle-instruction2": "If you cannot reach shelter within the time available to reach shelter – get out and move away from the vehicle to the side of the road or beyond the separation fence, lie on the ground and protect your head with your hands.",
+    "vehicle-instruction3": "Only if you are unable to get out of the vehicle, stop at the side of the road and bend below window line.",
+
+    "intercity-transportation-text": "On an intercity bus and student transportation - ",
+    "intercity-transportation-instruction": "the driver must stop the vehicle at the side of the road and open the doors, and the passengers must bend below the window line and protect their heads with their hands.",
+    "intracity-transportation-text": "On a city bus - ",
+    "intracity-transportation-instruction": "the driver must stop on the side of the road and open the doors for the passengers to get off and enter a nearby building. If it is not possible to reach the building in the time available, bend below the window line and protect your head with your hands.",
+    "train-text": "When traveling by train - ",
+    "train-instruction": "the driver must slow down to a speed of 30 km/h for 10 minutes, the passengers must bend below the window line in the carriages and protect their heads with their hands.",
+
+    "disclaimer": "DISCLAIMER: the app and information listed here is not official and may not be up to date. Miklat info was gathered from volunteers around the community of |YOUR CITY|, and the above instructions from Pikud Haoref. Please refer to their site for official instructions and standards at ",
+    "pikud-haoref-link": "https://www.oref.org.il/en",
+
+    "contact-us": "Found a bug? You can let us know at ",
+    "contact-email": "abc@example.com"
+ };
